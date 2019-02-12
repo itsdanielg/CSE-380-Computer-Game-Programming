@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!--
+    static_sprites_test.html
+
+    For testing the rendering system for still image sprites, i.e. StaticSpriteTypes
+
+    ©2019
+-->
+<html>
+
+<head>
+    <title>Wolfie Game Engine - Rendering Test</title>
+    <link rel="shortcut icon" type="image/png" href="./resources/images/favicon.ico" />
+
+    <!-- STANDARDIZE SOME PRESENTATION SETTINGS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- jQuery HELPS US WITH THE DOM AND THE WebGL DEBUGGER HELPS US TRACK DOWN ERRORS -->
+    <script src="js/jquery/jquery.min.js"></script>
+    <script src="js/webgl-debug/webgl-debug.js"></script>
+
+    <!-- HERE ARE THE JavaScript FILES FOR OUR LITTLE Wolfie.js ENGINE -->
+    <!-- NOTE THAT WHEN ONE RELEASES A JavaScript LIBRARY ONE CAN COMBINE -->
+    <!-- ALL OF THESE FILES INTO ONE MINIFIED FILE USING AN AUTOMATED PROCESS -->
+    <!-- BUT DURING DEVELOPMENT DEBUGGING IS EASIER USING FILES LIKE THESE -->
+    <script src="js/wolfie/graphics/GraphicsComponent.js"></script>
+    <script src="js/wolfie/graphics/Shader.js"></script>
+    <script src="js/wolfie/graphics/SpriteRenderer.js"></script>
+    <script src="js/wolfie/graphics/TextRenderer.js"></script>
+    <script src="js/wolfie/graphics/Texture.js"></script>
+    <script src="js/wolfie/math/MathComponent.js"></script>
+    <script src="js/wolfie/scene/SceneComponent.js"></script>
+    <script src="js/wolfie/sprite/Sprite.js"></script>
+    <script src="js/wolfie/sprite/StaticSpriteType.js"></script>
+    <script src="js/wolfie/ui/UIComponent.js"></script>
+    <script src="js/wolfie/Wolfie.js"></script>
+
+    <!-- AND THIS BUILDS THE EXAMPLE-->
+    <script src="js/test/StaticSpritesTestSceneBuilder.js"></script>
+
+    <!-- THIS IS WHERE OUR EXAMPLE STARTS -->
+    <script>
+        $(document).ready(function () {
+
+            // CONSTRUCT AND INITIALIZE OUR AFG OBJECT
+            window.wolfie = new Wolfie();
+            window.wolfie.init("game_canvas", "text_canvas");
+
+            // NOW LET'S MAKE
+            var testSceneBuilder = new StaticSpritesTestSceneBuilder();
+            testSceneBuilder.buildScene(window.wolfie.graphics, window.wolfie.scene, function () {
+                window.wolfie.graphics.renderScene(window.wolfie.scene);
+            });
+        });
+    </script>
+
+    <style>
+        #game_canvas {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            background-color: rgb(0, 0, 0);
+        }
+
+        #text_canvas {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="game_canvas"></canvas>
+    <canvas id="text_canvas"></canvas>
+</body>
+
+</html>
