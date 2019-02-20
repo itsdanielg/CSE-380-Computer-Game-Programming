@@ -2,26 +2,37 @@
 
 class AnimatedSpriteType {
     constructor(initSpriteSheetTexture, initSpriteWidth, initSpriteHeight) {
-        // YOU MUST DEFINE THIS METHOD
+        this.spriteSheetTexture = initSpriteSheetTexture;
+        this.spriteWidth = initSpriteWidth;
+        this.spriteHeight = initSpriteHeight;
+        this.animations = new Array();
     }
 
     addAnimation(state, framesArray) {
-        // YOU MUST DEFINE THIS METHOD
+        this.animations[state] = framesArray;
     }
 
     addAnimationFrame(state, index, frameDuration) {
-        // YOU MUST DEFINE THIS METHOD
+        var framesArray = this.animations[state];
+        framesArray.push({
+            index: index,
+            duration: frameDuration
+        });
     }
 
     getAnimation(state) {
-        // YOU MUST DEFINE THIS METHOD
+        return this.animations[state];
     }
 
     getLeft(state, frameIndex) {
-        // YOU MUST DEFINE THIS METHOD
+        var columns = this.spriteSheetTexture.width / this.spriteWidth;
+        var left = (frameIndex % columns) * this.spriteWidth
+        return left;
     }
 
     getTop(state, frameIndex) {
-        // YOU MUST DEFINE THIS METHOD
+        var columns = this.spriteSheetTexture.width / this.spriteWidth;
+        var top = (Math.floor(frameIndex / columns)) * this.spriteHeight;
+        return top;
     }
 }
