@@ -21,7 +21,7 @@ class AnimatedSpritesTestSceneBuilder {
 
     buildScene(graphics, scene, callback) {
         this.spriteCounter = 0;
-        var texturePaths = ["resources/images/RedCircleMan.png", "resources/images/Nagini Sprite Sheet.png"];
+        var texturePaths = ["resources/images/RedCircleMan.png", "resources/images/NaginiSpriteSheet.png"];
         var builder = this;
         graphics.loadTextures(scene, texturePaths, function () {
             builder.buildAnimatedSpriteTypes(scene, function() {

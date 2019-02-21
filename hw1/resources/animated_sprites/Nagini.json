@@ -1,6 +1,6 @@
 {
     "name": "Nagini",
-    "spriteSheetImage": "resources/images/Nagini Sprite Sheet.png",
+    "spriteSheetImage": "resources/images/NaginiSpriteSheet.png",
     "spriteWidth": 64,
     "spriteHeight": 64,
     "leftBuffer": 0,
