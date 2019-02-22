@@ -17,6 +17,7 @@ class WolfieFileManager {
             var spriteTexture = scene.textures[spriteSheetImage];
             scene.addAnimatedSpriteType(name, new AnimatedSpriteType(spriteTexture, spriteWidth, spriteHeight));
             var spriteType = scene.getAnimatedSpriteType(name);
+            spriteType.addBuffers(leftBuffer, rightBuffer, topBuffer, bottomBuffer);
             for (var i = 0; i < animations.length; i++) {
                 var state = animations[i].name;
                 var framesArray = new Array();

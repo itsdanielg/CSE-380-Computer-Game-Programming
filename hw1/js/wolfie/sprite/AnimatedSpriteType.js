@@ -9,6 +9,13 @@ class AnimatedSpriteType {
         this.states = new Array();
     }
 
+    addBuffers(initLeftBuffer, initRightBuffer, initTopBuffer, initBottomBuffer) {
+        this.leftBuffer = initLeftBuffer;
+        this.rightBuffer = initRightBuffer;
+        this.topBuffer = initTopBuffer;
+        this.bottomBuffer = initBottomBuffer;
+    }
+
     addAnimation(state, framesArray, stateIndex, repeat, next) {
         this.animations[state] = framesArray;
         this.states[state] = {
@@ -43,14 +50,16 @@ class AnimatedSpriteType {
 
     getLeft(state, frameIndex) {
         var columns = this.spriteSheetTexture.width / this.spriteWidth;
-        var left = (frameIndex % columns) * this.spriteWidth;
+        var left = (frameIndex % columns) * (this.spriteWidth + this.leftBuffer + this.rightBuffer);
+        left += this.leftBuffer;
         return left;
     }
 
     getTop(state, frameIndex) {
         var columns = this.spriteSheetTexture.width / this.spriteWidth;
         var rowIndex = Math.floor(frameIndex / columns);
-        var top = rowIndex  * this.spriteHeight;
+        var top = rowIndex  * (this.spriteHeight + this.topBuffer + this.bottomBuffer);
+        top += this.topBuffer;
         return top;
     }
 }
