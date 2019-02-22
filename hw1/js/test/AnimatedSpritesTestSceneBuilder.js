@@ -13,7 +13,7 @@ var TestConstants = {
     IDLE_STATE: "IDLE",
     DYING_STATE: "DYING",
     DEAD_STATE: "DEAD",
-    DANCE_STATE: "DANCE"
+    DANCE_STATE: "DANCING"
 };
 
 class AnimatedSpritesTestSceneBuilder {

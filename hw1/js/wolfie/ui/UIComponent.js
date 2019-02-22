@@ -40,6 +40,18 @@ class UIComponent {
             this.spriteToDrag = null;
         }
 
+        canvas.ondblclick = function(event) {
+            var mousePressX = event.clientX;
+            var mousePressY = event.clientY;
+
+            var sprite = scene.getFirstSpriteAt(mousePressX, mousePressY);
+            if (sprite != null) {
+                if (sprite instanceof AnimatedSprite) {
+                    sprite.moveToNextState();
+                }
+            }
+        }
+
         document.onkeydown = function(event) {
             if (event.keyCode == 84) {
                 var textCanvas = document.getElementById("text_canvas");
