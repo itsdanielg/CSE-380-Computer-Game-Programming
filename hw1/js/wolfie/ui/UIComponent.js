@@ -40,5 +40,18 @@ class UIComponent {
             this.spriteToDrag = null;
         }
 
+        document.onkeydown = function(event) {
+            if (event.keyCode == 84) {
+                var textCanvas = document.getElementById("text_canvas");
+                console.log(textCanvas.style.display);
+                if (textCanvas.style.display == "") {
+                    textCanvas.style.display = "none";
+                }
+                else {
+                    textCanvas.style.display = "";
+                }
+            }
+        }
+
     }
 }
