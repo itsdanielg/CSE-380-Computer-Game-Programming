@@ -31,7 +31,7 @@ class CollidableObject {
     moveTo(x, y) {
         this.boundingVolume.moveTo(x, y);
         if (this.sceneObject != null) {
-            this.sceneObject.moveTo(x, y);
+            this.sceneObject.moveBy(x - this.sceneObject.position[0], y - this.sceneObject.position[1]);
         }        
     }
 

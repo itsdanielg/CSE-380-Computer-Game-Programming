@@ -10,12 +10,4 @@ class PhysicalProperties {
         this.elasticity = 0.5;
         this.mass = 1.0;
     }
-
-    reset() {
-        this.timeOfCollision = 2.0;
-        this.startTimeOfCollisionX = 2.0;
-        this.startTimeOfCollisionY = 2.0;
-        this.endTimeOfCollisionX = 2.0;
-        this.endTimeOfCollisionY = 2.0;
-    }
 }

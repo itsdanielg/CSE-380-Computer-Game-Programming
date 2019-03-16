@@ -6,6 +6,9 @@ class PhysicsTests {
         this.textRenderer = initTextRenderer;
         this.tests = new Array();
         this.currentTest = -1;
+        this.SUCCESS_COLOR = "#ffff00";
+        this.FAILURE_COLOR = "#ff88bb";
+        this.FLOAT_TOLERANCE = 0.0001;
 
         // GET ALL THE TEST METHOD NAMES
         var thisPrototype = Object.getPrototypeOf(this);
@@ -72,71 +75,8 @@ class PhysicsTests {
         for (var i = 0; i < this.textRenderer.textToRender.length; i++) {
             var textToRender = this.textRenderer.textToRender[i];
             textToRender.text = "";
+            textToRender.fontColor = this.SUCCESS_COLOR;        
         }
-    }
-
-/*    testAddCollidableObject() {
-
-    }
-
-    testRemoveCollidableObject() {
-
-    }
-
-    testResolveCollision() {
-
-    }
-
-    testResolveCollisionAABBtoCircle() {
-
-    }
-
-    testResolveCollisionCircleToCircle() {
-
-    }
-
-    testSortCollidableObjects() {
-
-    }
-
-    testSortCollisions() {
-
-    }
-*/
-
-    makeCollidableObject(centerX, centerY, width, height, velocityX, velocityY) {
-        var collidableObject = new CollidableObject(null);
-        var aabb = collidableObject.boundingVolume;
-        aabb.centerX = centerX;
-        aabb.centerY = centerY;
-        aabb.width = width;
-        aabb.height = height;
-        var pp = collidableObject.physicalProperties;
-        pp.velocityX = velocityX;
-        pp.velocityY = velocityY;
-        return collidableObject;
-    }
-
-    testSweptShapeForAABB() {
-        // FIRST TEST
-        var collidableObject = this.makeCollidableObject(20, 25, 100, 200, 15, 30);
-        var aabb = collidableObject.boundingVolume;
-        var pp = collidableObject.physicalProperties;
-        var sweptShape = collidableObject.sweptShape;
-        collidableObject.sweep(0.0);
-        this.printSweptShapeForAABB("-Swept Shape for Positive Vx and Vy", aabb, sweptShape, pp, 2);
-    }
-
-    testTimeOfCollision() {
-        var a = this.makeCollidableObject(0, 0, 100, 200, 10, 0);
-        var b = this.makeCollidableObject(110, 0, 100, 200, -10, 0);
-        var collision = new Collision();
-        collision.collidableObject1 = a;
-        collision.collidableObject2 = b;
-        this.physics.calculateTimeOfCollision(collision);
-        this.printAABB("--aabb A: ", a.boundingVolume, a.physicalProperties, 1);
-        this.printAABB("--aabb B: ", b.boundingVolume, b.physicalProperties, 2);
-        this.textRenderer.textToRender[3].text = "--timeOfCollision: " + collision.timeOfCollision;
     }
 
     printSweptShape(title, aabb, i) {
@@ -152,24 +92,84 @@ class PhysicsTests {
                     + ", velocityX: " + pp.velocityX + ", velocityY: " + pp.velocityY;
     }
 
-    printSweptShapeForAABB(title, aabb, sweptShape, pp, i) {
+    printSweptShapeForAABB(title, aabb, expectedSweptShape, actualSweptShape, pp, i) {
         var tTR = this.textRenderer.textToRender;
         tTR[i].text = title;
-        this.printAABB(" --aabb: ", aabb, pp, i+1);
-        this.printSweptShape(" --sweptShape: ", sweptShape, i+2);
+        this.printAABB("--aabb: ", aabb, pp, i+1);
+        this.printSweptShape("--expected sweptShape: ", expectedSweptShape, i+2);
+        this.printSweptShape("--actual sweptShape: ", actualSweptShape, i+3);
     }
 
-/*
-    testTimeOfCollisionAABBtoCircle() {
-
+    makeCollidableObject(centerX, centerY, width, height, velocityX, velocityY) {
+        var collidableObject = new CollidableObject(null);
+        var aabb = collidableObject.boundingVolume;
+        aabb.centerX = centerX;
+        aabb.centerY = centerY;
+        aabb.width = width;
+        aabb.height = height;
+        var pp = collidableObject.physicalProperties;
+        pp.velocityX = velocityX;
+        pp.velocityY = velocityY;
+        return collidableObject;
     }
 
-    testTimeOfCollisionCircleToAABB() {
-
+    isWithinTolerance(expectedValue, actualValue) {
+        return Math.abs(expectedValue - actualValue) < this.FLOAT_TOLERANCE;
     }
 
-    testTimeOfCollisionCircleToCircle() {
+    // BELOW ARE 2 TEST METHODS DEMONSTRATING HOW TO DO SIMPLE TESTS
+    // OF INDIVIDUAL METHODS, i.e. PIECES OF THE COLLISION DETECTION ALGORITHM
 
+    testSweep() {
+        // GET THE STUFF TO TEST
+        var collidableObject = this.makeCollidableObject(20, 25, 100, 200, 15, 30);
+        var aabb = collidableObject.boundingVolume;
+        var pp = collidableObject.physicalProperties;
+        var actualSweptShape = collidableObject.sweptShape;
+
+        // THIS IS THE FUNCTION WE ARE TESTING
+        collidableObject.sweep(0.0);
+
+        // COMPARE THE EXPECTED TO ACTUAL RESULTS AND DISPLAY THEM        
+        var expectedSweptShape = new AABB();
+        expectedSweptShape.init(27.5, 40, 115, 230);
+        var startTextLineNumber = 2;
+        this.printSweptShapeForAABB("-Swept Shape for Positive Vx and Vy", aabb, expectedSweptShape, actualSweptShape, pp, startTextLineNumber);
+
+        if ((!this.isWithinTolerance(expectedSweptShape.centerX, collidableObject.sweptShape.centerX))
+        || (!this.isWithinTolerance(expectedSweptShape.centerY, collidableObject.sweptShape.centerY))
+        || (!this.isWithinTolerance(expectedSweptShape.width, collidableObject.sweptShape.width))
+        || (!this.isWithinTolerance(expectedSweptShape.height, collidableObject.sweptShape.height))) {
+            for (var i = startTextLineNumber; i < startTextLineNumber + 4; i++)
+                this.textRenderer.textToRender[i].fontColor = this.FAILURE_COLOR;
+        }
     }
-    */
+
+    testTimeOfCollision() {
+        // GET AND SETUP THE STUFF TO TEST
+        var a = this.makeCollidableObject(0, 0, 100, 200, 10, 0);
+        var b = this.makeCollidableObject(110, 0, 100, 200, -10, 0);
+        var collision = new Collision();
+        collision.collidableObject1 = a;
+        collision.collidableObject2 = b;
+
+        // THIS IS THE FUNCTION WE ARE TESTING
+        this.physics.calculateTimeOfCollision(collision);
+
+        // COMPARE THE EXPECTED TO ACTUAL RESULTS AND DISPLAY THEM        
+        var startTextLineNumber = 2;
+        var resultsText = this.textRenderer.textToRender[startTextLineNumber];
+        var expectedTimeOfCollision = 0.5;
+        resultsText.text = "-timeOfCollision for A on Left, B on Right, Moving towards one another: (expected: " + expectedTimeOfCollision + ", actual: " + collision.timeOfCollision + ")";
+        this.printAABB("--aabb A: ", a.boundingVolume, a.physicalProperties, startTextLineNumber+1);
+        this.printAABB("--aabb B: ", b.boundingVolume, b.physicalProperties, startTextLineNumber+2);
+
+        // IS IT CORRECT? IF NOT, PRINT THIS IN PINK
+        if (!this.isWithinTolerance(expectedTimeOfCollision, collision.timeOfCollision)) {
+            for (var i = startTextLineNumber; i < startTextLineNumber + 3; i++)
+            this.textRenderer.textToRender[i].fontColor = this.FAILURE_COLOR;
+        }
+    }
+
+    
 }
