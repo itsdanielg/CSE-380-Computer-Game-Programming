@@ -44,7 +44,14 @@ class CollidableObject {
      *        can be moved.
      */
     move(fromTime, toTime) {
-        // YOU MUST DEFINE THIS METHOD
+        if (!(this.isStatic())) {
+            var timeToMove = toTime - fromTime;
+            var totalXVel = this.physicalProperties.velocityX * timeToMove;
+            var totalYVel = this.physicalProperties.velocityY * timeToMove;
+            var newX = this.boundingVolume.centerX + totalXVel;
+            var newY = this.boundingVolume.centerY + totalYVel;
+            this.moveTo(newX, newY);
+        }
     }
 
     /*
@@ -53,6 +60,12 @@ class CollidableObject {
      *         the frame. Note that the swept shape is an AABB.
      */
     sweep(currentTimeInFrame) {
-        // YOU MUST DEFINE THIS METHOD
+        var timeExpected = 1 - currentTimeInFrame;
+        var adjustedXVel = this.physicalProperties.velocityX * timeExpected;
+        var adjustedYVel = this.physicalProperties.velocityY * timeExpected;
+        this.sweptShape.width = this.boundingVolume.width + adjustedXVel;
+        this.sweptShape.height = this.boundingVolume.height + adjustedYVel;
+        this.sweptShape.centerX = this.boundingVolume.getLeft() + (this.sweptShape.width/2);
+        this.sweptShape.centerY = this.boundingVolume.getTop() + (this.sweptShape.height/2);
     }
 }
