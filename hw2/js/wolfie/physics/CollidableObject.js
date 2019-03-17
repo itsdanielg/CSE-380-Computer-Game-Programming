@@ -50,7 +50,10 @@ class CollidableObject {
             var totalYVel = this.physicalProperties.velocityY * timeToMove;
             var newX = this.boundingVolume.centerX + totalXVel;
             var newY = this.boundingVolume.centerY + totalYVel;
-            this.moveTo(newX, newY);
+            this.boundingVolume.moveTo(newX, newY);
+            if (this.sceneObject != null) {
+                this.sceneObject.moveBy(totalXVel, totalYVel);
+            }    
         }
     }
 
