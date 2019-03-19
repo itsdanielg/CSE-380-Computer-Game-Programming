@@ -18,6 +18,15 @@ class CollidableObject {
         // BY DEFAULT OBJECTS ARE NOT WALKING, WHICH WOULD BE FOR
         // WHEN SPRITES AND OTHER THINGS ARE ON STATIC SURFACES
         this.walking = false;
+
+        this.topHit = false;
+        this.leftHit = false;
+        this.rightHit = false;
+
+        this.moveRightCommand = false;
+        this.moveLeftCommand = false;
+        this.jumpCommand = false;
+
     }
 
     isStatic() {
@@ -53,7 +62,8 @@ class CollidableObject {
             this.boundingVolume.moveTo(newX, newY);
             if (this.sceneObject != null) {
                 this.sceneObject.moveBy(totalXVel, totalYVel);
-            }    
+            }
+            return [totalXVel, totalYVel];
         }
     }
 
