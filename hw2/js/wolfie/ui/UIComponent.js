@@ -40,5 +40,45 @@ class UIComponent {
             this.spriteToDrag = null;
         }
 
+        document.onkeydown = function(event) {
+            var collidableObjects = window.wolfie.physics.collidableObjects;
+            var player = null;
+            for (var i = 0; i < collidableObjects.length; i++) {
+                if (collidableObjects[i].sceneObject == scene.player) {
+                    player = collidableObjects[i];
+                    break;
+                }
+            }
+            if (event.keyCode == 65) {
+                player.moveLeftCommand = true;
+            }
+            else if (event.keyCode == 68) {
+                player.moveRightCommand = true;
+            }
+            else if (event.keyCode == 32) {
+                player.jumpCommand = true;
+            }
+        }
+
+        document.onkeyup = function(event) {
+            var collidableObjects = window.wolfie.physics.collidableObjects;
+            var player = null;
+            for (var i = 0; i < collidableObjects.length; i++) {
+                if (collidableObjects[i].sceneObject == scene.player) {
+                    player = collidableObjects[i];
+                    break;
+                }
+            }
+            if (event.keyCode == 65) {
+                player.moveLeftCommand = false;
+            }
+            else if (event.keyCode == 68) {
+                player.moveRightCommand = false;
+            }
+            else if (event.keyCode == 32) {
+                player.jumpCommand = false;
+            }
+        }
+
     }
 }
