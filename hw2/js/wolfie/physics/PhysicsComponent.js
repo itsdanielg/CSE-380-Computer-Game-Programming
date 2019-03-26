@@ -14,6 +14,8 @@ class PhysicsComponent {
             var recyclableCollision = new Collision();
             this.recyclableCollisions.push(recyclableCollision);
         }
+
+        this.alreadyWon = false;
     }
 
     addCollidableObject(collidableObjectToAdd) {
@@ -249,7 +251,23 @@ class PhysicsComponent {
 
         // PROCESS ALL USER COMMANDS
         this.checkKeys();
-        this.botJump();
+
+        // CHECK IF THERE ARE STILL BOTS
+        var scene = window.wolfie.scene;
+        if (scene.bots.length == 0 && !this.alreadyWon) {
+            var graphics = window.wolfie.graphics;
+            var resultsText = "Congratulations! You Won!";
+            graphics.textRenderer.defaultFontSize = "160";
+            graphics.textRenderer.defaultFontColor = "#ff0000"
+            var textToRender = new TextToRender("1", resultsText, 400, 750, function() {
+
+            });
+            graphics.textRenderer.addTextToRender(textToRender);
+            this.alreadyWon = true;
+        }
+        else {
+            this.botJump();
+        }
 
         // START BY GOING THROUGH EACH OF THE CollidableObjects AND FOR EACH:
             // ADD GRAVITY AND OTHER ACCELERATION
@@ -315,15 +333,34 @@ class PhysicsComponent {
                 var collision = this.collisions[i];
                 var objectOne = collision.collidableObject1;
                 var objectTwo = collision.collidableObject2;
-                var directionOne = objectOne.move(this.currentTime, collision.timeOfCollision);
+                objectOne.move(this.currentTime, collision.timeOfCollision);
                 if (!objectOne.isStatic()) {
                     objectOne.physicalProperties.velocityX = 0;
                     objectOne.physicalProperties.velocityY = 0;
                 }
-                var directionTwo = objectTwo.move(this.currentTime, collision.timeOfCollision);
+                objectTwo.move(this.currentTime, collision.timeOfCollision);
                 if (!objectTwo.isStatic()) {
                     objectTwo.physicalProperties.velocityX = 0;
                     objectTwo.physicalProperties.velocityY = 0;
+                }
+                if (!objectOne.isStatic() && !objectTwo.isStatic()) {
+                    var player = this.getPlayer();
+                    if (objectOne === player) {
+                        if (player.boundingVolume.getBottom() == objectTwo.boundingVolume.getTop()) {
+                            this.playerOnBot(objectTwo);
+                        }
+                        else if (player.boundingVolume.getTop() == objectTwo.boundingVolume.getBottom()) {
+                            this.botOnPlayer(player);
+                        }
+                    }
+                    else if (objectTwo === player) {
+                        if (player.boundingVolume.getBottom() == objectOne.boundingVolume.getTop()) {
+                            this.playerOnBot(objectOne);
+                        }
+                        else if (player.boundingVolume.getTop() == objectOne.boundingVolume.getBottom()) {
+                            this.botOnPlayer(player);
+                        }
+                    }
                 }
                 
                 this.collisions[i].collidableObject1 = null;
@@ -412,6 +449,33 @@ class PhysicsComponent {
                 }
             }
         }
+    }
+
+    playerOnBot(bot) {
+        var sprite = bot.sceneObject;
+        var scene = window.wolfie.scene;
+        var tile = new StaticSprite(scene.getStaticSpriteType(TestConstants.YELLOW_TILE));
+        tile.position.set(bot.boundingVolume.getLeft(), bot.boundingVolume.getTop());
+        scene.addStaticSprite(tile);
+        for (var i = 0; i < scene.animatedSprites.length; i++) {
+            if (scene.animatedSprites[i] === sprite) {
+                scene.animatedSprites.splice(i, 1);
+                break;
+            }
+        }
+        for (var i = 0; i < scene.bots.length; i++) {
+            if (scene.bots[i] === sprite) {
+                scene.bots.splice(i, 1);
+                break;
+            }
+        }
+        bot.sceneObject = null;
+        bot.physicalProperties.velocityX = 0;
+        bot.physicalProperties.velocityY = 0;
+    }
+
+    botOnPlayer(player) {
+        player.moveTo(100, 100);
     }
 
 }
