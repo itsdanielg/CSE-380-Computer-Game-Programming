@@ -43,13 +43,13 @@ class PhysicsComponent {
      *                         swept shape's left edge.
      */
     sortCollidableObjects() {
-        // Implements bubble sort
+        // Implements bubble sort; Sorts by AABB instead of swept shape
         length = this.collidableObjects.length;
         for (var i = 0; i < length; i++) {
             for (var j = 1; j < length; j++) {
-                var currentShape = this.collidableObjects[j].sweptShape;
+                var currentShape = this.collidableObjects[j].boundingVolume;
                 var currentLeftEdge = currentShape.getLeft();
-                var prevShape = this.collidableObjects[j - 1].sweptShape;
+                var prevShape = this.collidableObjects[j - 1].boundingVolume;
                 var prevLeftEdge = prevShape.getLeft();
                 if (currentLeftEdge < prevLeftEdge) {
                     this.swap(this.collidableObjects, j - 1, j);
@@ -62,7 +62,7 @@ class PhysicsComponent {
      * sortCollisions - this method must sort collisions by their time of collision.
      */
     sortCollisions() {
-        // Implements bubble sort
+        // Implements bubble sort; Sorts by earlist to latest collision
         length = this.collisions.length;
         for (var i = 0; i < length; i++) {
             for (var j = 1; j < length; j++) {
@@ -85,6 +85,71 @@ class PhysicsComponent {
             this.collidableObjects[i].move(this.currentTime, time);
         }
         this.currentTime = time;
+    }
+
+    // HELPER METHOD FOR DETECTING COLLIDING OBJECTS
+    collisionCheck(collidableObject1, collidableObject2) {
+        var oneLeft = collidableObject1.boundingVolume.getLeft();
+        var oneRight = collidableObject1.boundingVolume.getRight();
+        var oneTop = collidableObject1.boundingVolume.getTop();
+        var oneBottom = collidableObject1.boundingVolume.getBottom();
+        var twoLeft = collidableObject2.boundingVolume.getLeft();
+        var twoRight = collidableObject2.boundingVolume.getRight();
+        var twoTop = collidableObject2.boundingVolume.getTop();
+        var twoBottom = collidableObject2.boundingVolume.getBottom();
+        if (oneLeft <= twoRight) {
+            if (oneRight >= twoLeft) {
+                if (oneBottom >= twoTop) {
+                    if (oneTop <= twoBottom) {
+                        return true;
+                    }
+                }
+            }	
+        }
+        return false;
+    }
+
+    checkSurroundings(collidableObject) {
+        collidableObject.walking = false;
+        collidableObject.topHit = false;
+        collidableObject.leftHit = false;
+        collidableObject.rightHit = false;
+        var top = collidableObject.boundingVolume.getTop();
+        var bottom = collidableObject.boundingVolume.getBottom();
+        var left = collidableObject.boundingVolume.getLeft();
+        var right = collidableObject.boundingVolume.getRight();
+        for (var i = 0; i < this.collidableObjects.length; i++) {
+            if (this.collidableObjects[i].boundingVolume.getBottom() == top) {
+                if (this.collisionCheck(this.collidableObjects[i], collidableObject)) {
+                    collidableObject.topHit = true;
+                    break;
+                }
+            }
+        }
+        for (var i = 0; i < this.collidableObjects.length; i++) {
+            if (this.collidableObjects[i].boundingVolume.getTop() == bottom) {
+                if (this.collisionCheck(this.collidableObjects[i], collidableObject)) {
+                    collidableObject.walking = true;
+                    break;
+                }
+            }
+        }
+        for (var i = 0; i < this.collidableObjects.length; i++) {
+            if (this.collidableObjects[i].boundingVolume.getRight() == left) {
+                if (this.collisionCheck(this.collidableObjects[i], collidableObject)) {
+                    collidableObject.leftHit = true;
+                    break;
+                }
+            }
+        }
+        for (var i = 0; i < this.collidableObjects.length; i++) {
+            if (this.collidableObjects[i].boundingVolume.getLeft() == right) {
+                if (this.collisionCheck(this.collidableObjects[i], collidableObject)) {
+                    collidableObject.rightHit = true;
+                    break;
+                }
+            }
+        }
     }
 
     /*
@@ -195,25 +260,24 @@ class PhysicsComponent {
 
             // APPLY GRAVITY AND WIND/CURRENT AND ALL OTHER ACCELERATION TO THE DYNAMIC SPRITES
             if (!collidableObject.isStatic()) {
-                // if (collidableObject.leftHit) {
-                //     pp.velocityX = 0;
-                //     this.rightHit = false;
-                // }
-                // if (collidableObject.rightHit) {
-                //     pp.velocityX = 0;
-                //     this.leftHit = false;
-                // }
+                this.checkSurroundings(collidableObject);
                 pp.velocityX += pp.accelerationX + this.windOrCurrent;
+                if (collidableObject.leftHit && pp.velocityX <= 0) {
+                    pp.velocityX = 0;
+                }
+                if (collidableObject.rightHit && pp.velocityX > 0) {
+                    pp.velocityX = 0;
+                }
 
                 // WE ONLY APPLY Y ACCELERATION TO GRAVITY IF THE OBJECT ISN'T WALKING ON A SURFACE,
                 // NOTE THAT THIS CREATES AN ISSUE WHERE THE SPRITE WON'T FALL AFTER WALKING OFF
                 // OF A PLATFORM, WHICH YOU'LL HAVE TO DEAL WITH
-                if (!collidableObject.isWalking()) {
-                    pp.velocityY += pp.accelerationY + this.gravity;
-                    collidableObject.topHit = false;
+                pp.velocityY += pp.accelerationY + this.gravity;
+                if (collidableObject.topHit && pp.velocityY < 0) {
+                    pp.velocityY = 0;
                 }
-                else {
-                    console.log("walking objects get no gravity");
+                if (collidableObject.walking && pp.velocityY > 0) {
+                    pp.velocityY = 0;
                 }
             }
 
@@ -252,42 +316,15 @@ class PhysicsComponent {
                 var objectTwo = collision.collidableObject2;
                 var directionOne = objectOne.move(this.currentTime, collision.timeOfCollision);
                 if (!objectOne.isStatic()) {
-                    if (directionOne[0] < 0) {
-                        objectOne.leftHit = true;
-                        objectOne.physicalProperties.velocityX = 0;
-                    }
-                    if (directionOne[0] > 0) {
-                        objectOne.rightHit = true;
-                        objectOne.physicalProperties.velocityX = 0;
-                    }
-                    if (directionOne[1] < 0) {
-                        objectOne.topHit = true;
-                        objectOne.physicalProperties.velocityY = 0;
-                    }
-                    if (directionOne[1] > 0) {
-                        objectOne.walking = true;
-                        objectOne.physicalProperties.velocityY = 0;
-                    }
+                    objectOne.physicalProperties.velocityX = 0;
+                    objectOne.physicalProperties.velocityY = 0;
                 }
                 var directionTwo = objectTwo.move(this.currentTime, collision.timeOfCollision);
                 if (!objectTwo.isStatic()) {
-                    if (directionTwo[0] < 0) {
-                        objectTwo.leftHit = true;
-                        objectTwo.physicalProperties.velocityX = 0;
-                    }
-                    if (directionTwo[0] > 0) {
-                        objectTwo.rightHit = true;
-                        objectTwo.physicalProperties.velocityX = 0;
-                    }
-                    if (directionTwo[1] < 0) {
-                        objectTwo.topHit = true;
-                        objectTwo.physicalProperties.velocityY = 0;
-                    }
-                    if (directionTwo[1] > 0) {
-                        objectTwo.walking = true;
-                        objectTwo.physicalProperties.velocityY = 0;
-                    }
+                    objectTwo.physicalProperties.velocityX = 0;
+                    objectTwo.physicalProperties.velocityY = 0;
                 }
+                
                 this.collisions[i].collidableObject1 = null;
                 this.collisions[i].collidableObject2 = null;
                 this.recyclableCollisions.push(collision);
@@ -315,8 +352,8 @@ class PhysicsComponent {
     
     checkKeys() {
         var player = this.getPlayer();
-        var xVel = 10;
-        var jumpVel = -60;
+        var xVel = 15;
+        var jumpVel = -55;
         if (player.moveRightCommand && player.moveLeftCommand && player.jumpCommand) {
             player.physicalProperties.velocityX = 0;
             if (player.isWalking()) {
@@ -330,34 +367,28 @@ class PhysicsComponent {
             player.physicalProperties.velocityX = xVel;
             if (player.isWalking()) {
                 player.physicalProperties.velocityY = jumpVel;
-                player.walking = false;
             }
-            player.leftHit = false;
         }
         else if (player.jumpCommand && player.moveLeftCommand) {
             player.physicalProperties.velocityX = -xVel;
             if (player.isWalking()) {
                 player.physicalProperties.velocityY = jumpVel;
-                player.walking = false;
             }
-            player.rightHit = false;
         }
         else if (player.moveRightCommand) {
             player.physicalProperties.velocityX = xVel;
-            player.leftHit = false;
         }
         else if (player.moveLeftCommand) {
             player.physicalProperties.velocityX = -xVel;
-            player.rightHit = false;
         }
         else if (player.jumpCommand) {
             if (player.isWalking()) {
                 player.physicalProperties.velocityY = jumpVel;
-                player.walking = false;
             }
         }
         else {
             player.physicalProperties.velocityX = 0;
         }
     }
+
 }
