@@ -27,6 +27,8 @@ class CollidableObject {
         this.moveLeftCommand = false;
         this.jumpCommand = false;
 
+        this.botCurrentFrame = 0;
+
     }
 
     isStatic() {

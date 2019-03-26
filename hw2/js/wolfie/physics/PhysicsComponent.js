@@ -249,6 +249,7 @@ class PhysicsComponent {
 
         // PROCESS ALL USER COMMANDS
         this.checkKeys();
+        this.botJump();
 
         // START BY GOING THROUGH EACH OF THE CollidableObjects AND FOR EACH:
             // ADD GRAVITY AND OTHER ACCELERATION
@@ -388,6 +389,28 @@ class PhysicsComponent {
         }
         else {
             player.physicalProperties.velocityX = 0;
+        }
+    }
+
+    botJump() {
+        for (var i = 0; i < this.collidableObjects.length; i++) {
+            if (!(this.collidableObjects[i].isStatic())) {
+                if (!(this.collidableObjects[i] === this.getPlayer())) {
+                    var bot = this.collidableObjects[i];
+                    if (bot.isWalking()) {
+                        if (bot.botCurrentFrame == 10) {
+                            var randomX = Math.floor(Math.random() * 31);
+                            randomX *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+                            bot.physicalProperties.velocityX = randomX;
+                            bot.physicalProperties.velocityY = -30;
+                            bot.botCurrentFrame = 0;
+                        }
+                        else {
+                            bot.botCurrentFrame += 1;
+                        }
+                    }
+                }
+            }
         }
     }
 
