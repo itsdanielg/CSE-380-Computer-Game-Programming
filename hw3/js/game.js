@@ -69,6 +69,30 @@ function create() {
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.cameras.main.startFollow(player);
 
+    // DISPLAY TEXT
+    readMeText = this.add.text(624, 480, readMe(), {
+        fontSize: '24px',
+        fill: '#eaf50f'
+    });
+    readMeText.setScrollFactor(0);
+    readMeText.setStroke('black', 3);
+
+    // KEYBOARD INPUTS
+    this.input.keyboard.on('keydown-' + 'M', function (event) {
+        if (playerSpeed < 500) {
+            playerSpeed += 1;
+        }
+    });
+    this.input.keyboard.on('keydown-' + 'N', function (event) {
+        if (playerSpeed > 1) {
+            playerSpeed -= 1;
+        }
+    });
+    this.input.keyboard.on('keydown-' + 'L', function (event) {
+        // Show path
+    });
+
+    
 }
 
 function update() {
@@ -88,5 +112,13 @@ function update() {
         playerIsMoving = false;
         player.anims.play('idle', true);
     }
+    
+    readMeText.setText(readMe());
 
+}
+
+function readMe() {
+    var instructions = "Press \"M\" to increase velocity\n" + "Press \"N\" to decrease velocity\n" + "Press \"L\" to show paths\n"
+    var playerVel = "Player Velocity: " + playerSpeed;
+    return instructions + playerVel;
 }
