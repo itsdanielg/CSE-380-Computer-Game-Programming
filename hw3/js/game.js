@@ -98,6 +98,8 @@ function create() {
 function update() {
     
     if (this.input.mousePointer.isDown) {
+        var radians = Phaser.Math.Angle.Between(player.getCenter().x, player.getCenter().y, this.input.x, this.input.y) + (90 * Math.PI/180);
+        player.setRotation(radians);
         player.anims.play('move', true);
         playerIsMoving = true;
         destX = Math.round(this.input.x);
@@ -112,7 +114,7 @@ function update() {
         playerIsMoving = false;
         player.anims.play('idle', true);
     }
-    
+
     readMeText.setText(readMe());
 
 }
